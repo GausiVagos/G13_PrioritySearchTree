@@ -1,6 +1,6 @@
 package G13.pst.models;
 
-public class CompositeNumber implements Comparable
+public class CompositeNumber implements Comparable<CompositeNumber>
 {
 	private double nb1;
 	private double nb2;
@@ -68,7 +68,7 @@ public class CompositeNumber implements Comparable
 	*/ 
 	
 	@Override
-	public int compareTo(Object o) 
+	public int compareTo(CompositeNumber o) 
 	{
 		CompositeNumber other = (CompositeNumber)o;
 		if(other == null)
