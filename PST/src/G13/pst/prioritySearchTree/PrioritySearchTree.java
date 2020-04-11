@@ -13,13 +13,16 @@ public class PrioritySearchTree
 	
 	public PrioritySearchTree(List<Point> data)
 	{
-		Point minX = minimum_in_x(data);
-		value = minX;
-		data.remove(minX);
-		
-		for(Point p : data)
+		if(data.size()>0)
 		{
-			//TODO
+			Point minX = minimum_in_x(data);
+			value = minX;
+			data.remove(minX);
+			
+			for(Point p : data)
+			{
+				//TODO
+			}
 		}
 	}
 	
@@ -29,7 +32,7 @@ public class PrioritySearchTree
 		return null;
 	}
 	
-	private float medianY(Point[] data)
+	private float median_in_Y(Point[] data)
 	{
 		//TODO : trier en fonction de y (ou avec les nombres composites?)
 		//Arrays.sort(data);
