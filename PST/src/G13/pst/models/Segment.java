@@ -29,6 +29,6 @@ public class Segment
 
 	@Override
 	public String toString() {
-		return "[" + this.ext1.toString() + " " + this.ext2.toString() + "]";
+		return "Segment [" + this.ext1.toString() + " " + this.ext2.toString() + "]";
 	}
 }

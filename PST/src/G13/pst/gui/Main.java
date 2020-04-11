@@ -5,8 +5,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import G13.pst.models.Point;
 import G13.pst.models.Segment;
+import G13.pst.models.Window;
 import G13.pst.utils.File;
-import G13.pst.utils.SegmentParser;
+import G13.pst.utils.Parser;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.geometry.Pos;
@@ -14,6 +15,7 @@ import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.control.Spinner;
 import javafx.scene.layout.GridPane;
 import javafx.scene.paint.Color;
@@ -27,11 +29,17 @@ public class Main extends Application {
     private Stage menuStage = null;
     private Stage controlStage = null;
     private Stage previewStage = null;
-    private Segment window = null;
+    private Group previewGroup = null;
+    private Window window = null;
 
     private Point queryStart = null;
-    private Segment queryWindow = null;
+    private Window queryWindow = null;
     private Rectangle queryRectangle = null;
+
+    private Spinner spinnerQueryXS;
+    private Spinner spinnerQueryYS;
+    private Spinner spinnerQueryXE;
+    private Spinner spinnerQueryYE;
 
     private ArrayList<Line> segments = new ArrayList<Line>();
 
@@ -108,9 +116,10 @@ public class Main extends Application {
             for(String line : lines) {
                 if(first) {
                     first = false;
-                    this.window = SegmentParser.createFromString(line);
+                    this.window = Parser.createWindowFromString(line);
+                    this.queryWindow = this.window;
                 } else {
-                    Segment s = SegmentParser.createFromString(line);
+                    Segment s = Parser.createSegmentFromString(line);
                     Line l = new Line();
                     l.setStartX(s.getExt1().getX());
                     l.setStartY(s.getExt1().getY());
@@ -119,65 +128,82 @@ public class Main extends Application {
                     segments.add(l);
                 }
             }
-            Group root = new Group((Collection) segments);
-            Scene scene = new Scene(root, Math.abs(this.window.getExt2().getX()), Math.abs(this.window.getExt2().getY()));
+            this.previewGroup = new Group((Collection) segments);
+            Rectangle r = new Rectangle();
+            System.out.println(this.window);
+            r.setX(this.window.getStart().getX());
+            r.setY(this.window.getStart().getY());
+            r.setWidth(this.window.getEnd().getX() - this.window.getStart().getX());
+            r.setHeight(this.window.getEnd().getY() - this.window.getStart().getY());
+            r.setFill(Color.TRANSPARENT);
+            r.setStroke(Color.BLUE);
+            this.previewGroup.getChildren().add(r);
+            this.queryRectangle = new Rectangle();
+            this.queryRectangle.setX(this.window.getStart().getX());
+            this.queryRectangle.setY(this.window.getStart().getY());
+            this.queryRectangle.setWidth(this.window.getEnd().getX() - this.window.getStart().getX());
+            this.queryRectangle.setHeight(this.window.getEnd().getY() - this.window.getStart().getY());
+            this.queryRectangle.setFill(null);
+            this.queryRectangle.setStroke(Color.RED);
+            this.previewGroup.getChildren().add(this.queryRectangle);
+            ScrollPane sp = new ScrollPane();
+            sp.setFitToHeight(true);
+            sp.setFitToWidth(true);
+            sp.setContent(this.previewGroup);
+            Scene scene = new Scene(sp, 800, 800);
             scene.setOnKeyPressed( (event) -> {
                     switch (event.getCode()) {
-                        case SPACE: this.controlStage.show(); break;
+                        case TAB: this.controlStage.show(); break;
                         case ESCAPE: this.menuStage.show(); this.previewStage.close(); this.controlStage.close(); break;
                     }
             });
-            scene.setOnMousePressed((value) -> {
-                if(this.queryRectangle != null) {
-                    root.getChildren().remove(this.queryRectangle);
-                }
-                if(value.getSceneX() >= this.previewStage.getScene().getX() &&
-                        value.getSceneY() >= this.previewStage.getScene().getY() &&
-                        value.getSceneX() <= this.previewStage.getScene().getX() + this.previewStage.getScene().getWidth() &&
-                        value.getSceneY() <= this.previewStage.getScene().getY() + this.previewStage.getScene().getHeight()) {
-                    this.queryStart = new Point(value.getSceneX(), value.getSceneY());
+            this.previewGroup.setOnMousePressed((value) -> {
+                this.queryRectangle.setStroke(Color.TRANSPARENT);
+                if(value.getX() >= this.previewGroup.getLayoutBounds().getMinX() &&
+                        value.getY() >= this.previewGroup.getLayoutBounds().getMinY() &&
+                        value.getX() <= this.previewGroup.getLayoutBounds().getMaxX() &&
+                        value.getY() <= this.previewGroup.getLayoutBounds().getMaxY()) {
+                    this.queryStart = new Point(value.getX(), value.getY());
                     System.out.println("START: " + this.queryStart);
                 }
+
             });
-            scene.setOnMouseReleased((value) -> {
+            this.previewGroup.setOnMouseReleased((value) -> {
                 if(this.queryStart != null) {
-                    if(value.getSceneX() >= this.previewStage.getScene().getX() &&
-                        value.getSceneY() >= this.previewStage.getScene().getY() &&
-                        value.getSceneX() <= this.previewStage.getScene().getX() + this.previewStage.getScene().getWidth() &&
-                        value.getSceneY() <= this.previewStage.getScene().getY() + this.previewStage.getScene().getHeight()) {
-                        this.queryWindow = new Segment(this.queryStart, new Point(value.getSceneX(), value.getSceneY()));
+                    if(value.getX() >= this.previewGroup.getLayoutBounds().getMinX() &&
+                            value.getY() >= this.previewGroup.getLayoutBounds().getMinY() &&
+                            value.getX() <= this.previewGroup.getLayoutBounds().getMaxX() &&
+                            value.getY() <= this.previewGroup.getLayoutBounds().getMaxY()) {
+                        this.queryWindow = new Window(this.queryStart, new Point(value.getX(), value.getY()));
                         System.out.println("QUERY: " + this.queryWindow);
+                        this.spinnerQueryXS.getValueFactory().setValue(this.queryWindow.getStart().getX());
+                        this.spinnerQueryXE.getValueFactory().setValue(this.queryWindow.getEnd().getX());
+                        this.spinnerQueryYS.getValueFactory().setValue(this.queryWindow.getStart().getY());
+                        this.spinnerQueryYE.getValueFactory().setValue(this.queryWindow.getEnd().getY());
                     }
                     this.queryStart = null;
                 }
             });
-            scene.setOnMouseDragged((value) -> {
+            this.previewGroup.setOnMouseDragged((value) -> {
                 if(this.queryStart != null) {
-                    if(this.queryRectangle != null) {
-                        root.getChildren().remove(this.queryRectangle);
-                    }
-                    System.out.println("Moving mouse");
-                    this.queryRectangle = new Rectangle();
-                    if(this.queryStart.getY() < value.getSceneY()) {
-                        this.queryRectangle.setY(this.queryStart.getY());
-                        this.queryRectangle.setHeight(value.getSceneY() - this.queryStart.getY());
+                    if(this.queryStart.getY() < value.getY()) {
+                        this.spinnerQueryYS.getValueFactory().setValue(this.queryStart.getY());
+                        this.spinnerQueryYE.getValueFactory().setValue(value.getY());
                     } else {
-                        this.queryRectangle.setY(value.getSceneY());
-                        this.queryRectangle.setHeight(this.queryStart.getY() - value.getSceneY());
+                        this.spinnerQueryYS.getValueFactory().setValue(value.getY());
+                        this.spinnerQueryYE.getValueFactory().setValue(this.queryStart.getY());
                     }
-                    if(this.queryStart.getX() < value.getSceneX()) {
-                        this.queryRectangle.setX(this.queryStart.getX());
-                        this.queryRectangle.setWidth(value.getSceneX() - this.queryStart.getX());
+                    if(this.queryStart.getX() < value.getX()) {
+                        this.spinnerQueryXS.getValueFactory().setValue(this.queryStart.getX());
+                        this.spinnerQueryXE.getValueFactory().setValue(value.getX());
                     } else {
-                        this.queryRectangle.setX(value.getSceneX());
-                        this.queryRectangle.setWidth(this.queryStart.getX() - value.getSceneX());
+                        this.spinnerQueryXS.getValueFactory().setValue(value.getX());
+                        this.spinnerQueryXE.getValueFactory().setValue(this.queryStart.getX());
                     }
-                    this.queryRectangle.setFill(null);
-                    this.queryRectangle.setStroke(Color.RED);
-                    root.getChildren().add(this.queryRectangle);
                 }
             });
             this.previewStage.setScene(scene);
+            this.previewStage.setResizable(true);
     }
 
     private void buildControlStage() {
@@ -185,19 +211,14 @@ public class Main extends Application {
         this.controlStage.setResizable(false);
         this.controlStage.setTitle("Windowing controls");
         GridPane r = new GridPane();
-        r.addColumn(0,new Label("Total segments: " + this.segments.size()));
-        r.addColumn(0,new Label("Window x1:"));
-        Spinner extX1 = new Spinner(-Math.abs(this.window.getExt1().getX()), Math.abs(this.window.getExt2().getX()),this.window.getExt1().getX());
-        r.addColumn(0, extX1);
-        r.addColumn(0,new Label("Window y1:"));
-        Spinner extY1 = new Spinner(-Math.abs(this.window.getExt1().getY()), Math.abs(this.window.getExt2().getY()),this.window.getExt1().getY());
-        r.addColumn(0, extY1);
-        r.addColumn(0,new Label("Window x2:"));
-        Spinner extX2 = new Spinner(-Math.abs(this.window.getExt1().getX()), Math.abs(this.window.getExt2().getX()), this.window.getExt2().getX());
-        r.addColumn(0, extX2);
-        r.addColumn(0,new Label("Window y2:"));
-        Spinner extY2 = new Spinner(-Math.abs(this.window.getExt1().getY()), Math.abs(this.window.getExt2().getY()), this.window.getExt2().getY());
-        r.addColumn(0, extY2);
+        Button btn2 = new Button("Exit");
+        btn2.setPrefWidth(150);
+        btn2.setOnAction((value) -> {
+            Platform.exit();
+            System.out.println("Closing application");
+            System.exit(0);
+        });
+        r.addColumn(0, btn2);
         Button btn = new Button("Switch resource file");
         btn.setPrefWidth(150);
         btn.setOnAction((value) -> {
@@ -206,9 +227,57 @@ public class Main extends Application {
             this.previewStage.close();
         });
         r.addColumn(0, btn);
+        r.addColumn(0,new Label("Total segments: " + this.segments.size()));
+        r.addColumn(0,new Label("Window x0:"));
+        this.spinnerQueryXS = new Spinner(this.window.getStart().getX(), this.window.getEnd().getX(),this.window.getStart().getX());
+        this.spinnerQueryXS.valueProperty().addListener((value) -> {
+            this.drawWindowQuery(new Point((double) this.spinnerQueryXS.valueProperty().getValue(), (double) this.spinnerQueryYS.valueProperty().getValue()),
+                    new Point((double) this.spinnerQueryXE.valueProperty().getValue(),(double) this.spinnerQueryYE.valueProperty().getValue()));
+        });
+        r.addColumn(0, this.spinnerQueryXS);
+        r.addColumn(0,new Label("Window y0:"));
+        this.spinnerQueryYS = new Spinner(this.window.getStart().getY(), this.window.getEnd().getY(),this.window.getStart().getY());
+        this.spinnerQueryYS.valueProperty().addListener((value) -> {
+            this.drawWindowQuery(new Point((double) this.spinnerQueryXS.valueProperty().getValue(), (double) this.spinnerQueryYS.valueProperty().getValue()),
+                    new Point((double) this.spinnerQueryXE.valueProperty().getValue(),(double) this.spinnerQueryYE.valueProperty().getValue()));
+        });
+        r.addColumn(0, this.spinnerQueryYS);
+        r.addColumn(0,new Label("Window x'0:"));
+        this.spinnerQueryXE = new Spinner(this.window.getStart().getX(), this.window.getEnd().getX(), this.window.getEnd().getX());
+        this.spinnerQueryXE.valueProperty().addListener((value) -> {
+            this.drawWindowQuery(new Point((double) this.spinnerQueryXS.valueProperty().getValue(), (double) this.spinnerQueryYS.valueProperty().getValue()),
+                    new Point((double) this.spinnerQueryXE.valueProperty().getValue(),(double) this.spinnerQueryYE.valueProperty().getValue()));
+        });
+        r.addColumn(0, this.spinnerQueryXE);
+        r.addColumn(0,new Label("Window y'0:"));
+        this.spinnerQueryYE = new Spinner(this.window.getStart().getY(), this.window.getEnd().getY(), this.window.getEnd().getY());
+        this.spinnerQueryYE.valueProperty().addListener((value) -> {
+            this.drawWindowQuery(new Point((double) this.spinnerQueryXS.valueProperty().getValue(), (double) this.spinnerQueryYS.valueProperty().getValue()),
+                    new Point((double) this.spinnerQueryXE.valueProperty().getValue(),(double) this.spinnerQueryYE.valueProperty().getValue()));
+        });
+        r.addColumn(0, this.spinnerQueryYE);
         r.setAlignment(Pos.CENTER);
         r.setVgap(5);
         this.controlStage.setScene(new Scene(r, 300, 300));
+    }
+
+    private void drawWindowQuery(Point p1, Point p2) {
+        if(p2.getY() < p1.getY()) {
+            this.queryRectangle.setY(p2.getY());
+            this.queryRectangle.setHeight(p1.getY() - p2.getY());
+        } else {
+            this.queryRectangle.setY(p1.getY());
+            this.queryRectangle.setHeight(p2.getY() - p1.getY());
+        }
+        if(p2.getX() < p1.getX()) {
+            this.queryRectangle.setX(p2.getX());
+            this.queryRectangle.setWidth(p1.getX() - p2.getX());
+        } else {
+            this.queryRectangle.setX(p1.getX());
+            this.queryRectangle.setWidth(p2.getX() - p1.getX());
+        }
+        this.queryRectangle.setFill(null);
+        this.queryRectangle.setStroke(Color.RED);
     }
 
     public static void main(String[] args) {
