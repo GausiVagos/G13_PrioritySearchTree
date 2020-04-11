@@ -15,8 +15,7 @@ public class CompositePointComparator implements Comparator<CompositePoint>
 
 		@Override
 		public int compare(CompositePoint o1, CompositePoint o2) {
-			// TODO Auto-generated method stub
-			return 0;
+			return o1.getExt1().compareTo(o2.getExt1());
 		}
 		
 	}
@@ -26,8 +25,7 @@ public class CompositePointComparator implements Comparator<CompositePoint>
 
 		@Override
 		public int compare(CompositePoint o1, CompositePoint o2) {
-			// TODO Auto-generated method stub
-			return 0;
+			return o1.getExt2().compareTo(o2.getExt2());
 		}
 		
 	}
