@@ -26,5 +26,9 @@ public class Segment
 	public void setExt2(Point ext2) {
 		this.ext2 = ext2;
 	}
-	
+
+	@Override
+	public String toString() {
+		return "[" + this.ext1.toString() + " " + this.ext2.toString() + "]";
+	}
 }

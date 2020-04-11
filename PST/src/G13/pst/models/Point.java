@@ -40,4 +40,9 @@ public class Point
 	public void setSegment(Segment segment) {
 		this.segment = segment;
 	}
+
+	@Override
+	public String toString() {
+		return "(" + this.x + ";" + this.y + ")";
+	}
 }

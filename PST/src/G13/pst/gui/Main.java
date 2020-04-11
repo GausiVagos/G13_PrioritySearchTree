@@ -3,24 +3,22 @@ package G13.pst.gui;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
-
+import G13.pst.models.Point;
 import G13.pst.models.Segment;
 import G13.pst.utils.File;
 import G13.pst.utils.SegmentParser;
 import javafx.application.Application;
 import javafx.application.Platform;
-import javafx.event.EventHandler;
-import javafx.fxml.FXMLLoader;
 import javafx.geometry.Pos;
 import javafx.scene.Group;
-import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.Spinner;
-import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.GridPane;
+import javafx.scene.paint.Color;
 import javafx.scene.shape.Line;
+import javafx.scene.shape.Rectangle;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
@@ -30,7 +28,12 @@ public class Main extends Application {
     private Stage controlStage = null;
     private Stage previewStage = null;
     private Segment window = null;
-    ArrayList<Line> segments = new ArrayList<Line>();
+
+    private Point queryStart = null;
+    private Segment queryWindow = null;
+    private Rectangle queryRectangle = null;
+
+    private ArrayList<Line> segments = new ArrayList<Line>();
 
     @Override
     public void start(Stage primaryStage) throws Exception {
@@ -46,6 +49,7 @@ public class Main extends Application {
     private void buildPreviewStage() {
         this.previewStage = new Stage();
         this.previewStage.setTitle("Windowing preview");
+        this.previewStage.setResizable(false);
         this.previewStage.setOnCloseRequest((value) -> {
             this.menuStage.show();
             this.controlStage.close();
@@ -116,12 +120,62 @@ public class Main extends Application {
                 }
             }
             Group root = new Group((Collection) segments);
-            Scene scene = new Scene(root, Math.abs(this.window.getExt2().getX()), 800);
+            Scene scene = new Scene(root, Math.abs(this.window.getExt2().getX()), Math.abs(this.window.getExt2().getY()));
             scene.setOnKeyPressed( (event) -> {
                     switch (event.getCode()) {
                         case SPACE: this.controlStage.show(); break;
                         case ESCAPE: this.menuStage.show(); this.previewStage.close(); this.controlStage.close(); break;
                     }
+            });
+            scene.setOnMousePressed((value) -> {
+                if(this.queryRectangle != null) {
+                    root.getChildren().remove(this.queryRectangle);
+                }
+                if(value.getSceneX() >= this.previewStage.getScene().getX() &&
+                        value.getSceneY() >= this.previewStage.getScene().getY() &&
+                        value.getSceneX() <= this.previewStage.getScene().getX() + this.previewStage.getScene().getWidth() &&
+                        value.getSceneY() <= this.previewStage.getScene().getY() + this.previewStage.getScene().getHeight()) {
+                    this.queryStart = new Point(value.getSceneX(), value.getSceneY());
+                    System.out.println("START: " + this.queryStart);
+                }
+            });
+            scene.setOnMouseReleased((value) -> {
+                if(this.queryStart != null) {
+                    if(value.getSceneX() >= this.previewStage.getScene().getX() &&
+                        value.getSceneY() >= this.previewStage.getScene().getY() &&
+                        value.getSceneX() <= this.previewStage.getScene().getX() + this.previewStage.getScene().getWidth() &&
+                        value.getSceneY() <= this.previewStage.getScene().getY() + this.previewStage.getScene().getHeight()) {
+                        this.queryWindow = new Segment(this.queryStart, new Point(value.getSceneX(), value.getSceneY()));
+                        System.out.println("QUERY: " + this.queryWindow);
+                    }
+                    this.queryStart = null;
+                }
+            });
+            scene.setOnMouseDragged((value) -> {
+                if(this.queryStart != null) {
+                    if(this.queryRectangle != null) {
+                        root.getChildren().remove(this.queryRectangle);
+                    }
+                    System.out.println("Moving mouse");
+                    this.queryRectangle = new Rectangle();
+                    if(this.queryStart.getY() < value.getSceneY()) {
+                        this.queryRectangle.setY(this.queryStart.getY());
+                        this.queryRectangle.setHeight(value.getSceneY() - this.queryStart.getY());
+                    } else {
+                        this.queryRectangle.setY(value.getSceneY());
+                        this.queryRectangle.setHeight(this.queryStart.getY() - value.getSceneY());
+                    }
+                    if(this.queryStart.getX() < value.getSceneX()) {
+                        this.queryRectangle.setX(this.queryStart.getX());
+                        this.queryRectangle.setWidth(value.getSceneX() - this.queryStart.getX());
+                    } else {
+                        this.queryRectangle.setX(value.getSceneX());
+                        this.queryRectangle.setWidth(this.queryStart.getX() - value.getSceneX());
+                    }
+                    this.queryRectangle.setFill(null);
+                    this.queryRectangle.setStroke(Color.RED);
+                    root.getChildren().add(this.queryRectangle);
+                }
             });
             this.previewStage.setScene(scene);
     }
