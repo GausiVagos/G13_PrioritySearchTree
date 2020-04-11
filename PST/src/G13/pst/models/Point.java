@@ -2,18 +2,22 @@ package G13.pst.models;
 
 public class Point 
 {
-	private int x;
-	private int y;
+	private double x;
+	private double y;
 	private Segment segment;
 	
-	public Point(int x, int y, Segment segment) {
-		super();
+	public Point(double x, double y, Segment segment) {
 		this.x = x;
 		this.y = y;
 		this.segment = segment;
 	}
 
-	public int getX() {
+	public Point(double x, double y) {
+		this.x = x;
+		this.y = y;
+	}
+
+	public double getX() {
 		return x;
 	}
 
@@ -21,7 +25,7 @@ public class Point
 		this.x = x;
 	}
 
-	public int getY() {
+	public double getY() {
 		return y;
 	}
 

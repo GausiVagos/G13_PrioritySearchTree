@@ -2,11 +2,10 @@ package G13.pst.models;
 
 public class CompositeNumber implements Comparable
 {
-	private int nb1;
-	private int nb2;
+	private double nb1;
+	private double nb2;
 	
-	public CompositeNumber(int nb1, int nb2) {
-		super();
+	public CompositeNumber(double nb1, double nb2) {
 		this.nb1 = nb1;
 		this.nb2 = nb2;
 	}
@@ -25,19 +24,19 @@ public class CompositeNumber implements Comparable
 		return true;
 	}
 	
-	public int getNb1() {
+	public double getNb1() {
 		return nb1;
 	}
 
-	public void setNb1(int nb1) {
+	public void setNb1(double nb1) {
 		this.nb1 = nb1;
 	}
 
-	public int getNb2() {
+	public double getNb2() {
 		return nb2;
 	}
 
-	public void setNb2(int nb2) {
+	public void setNb2(double nb2) {
 		this.nb2 = nb2;
 	}
 
