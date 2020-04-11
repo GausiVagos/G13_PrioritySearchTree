@@ -2,35 +2,35 @@ package G13.pst.models;
 
 public class CompositePoint 
 {
-	private CompositeNumber ext1;
-	private CompositeNumber ext2;
+	private CompositeNumber cnX;
+	private CompositeNumber cnY;
 	
-	public CompositePoint(CompositeNumber ext1, CompositeNumber ext2) {
+	public CompositePoint(CompositeNumber cnX, CompositeNumber cnY) {
 		super();
-		this.ext1 = ext1;
-		this.ext2 = ext2;
+		this.cnX = cnX;
+		this.cnY = cnY;
 	}
 
 	public CompositePoint(Point p) 
 	{
-		ext1 = new CompositeNumber(p.getX(),p.getY());
-		ext2 = new CompositeNumber(p.getY(),p.getX());
+		cnX = new CompositeNumber(p.getX(),p.getY());
+		cnY = new CompositeNumber(p.getY(),p.getX());
 	}
 
-	public CompositeNumber getExt1() {
-		return ext1;
+	public CompositeNumber getCnX() {
+		return cnX;
 	}
 
-	public void setExt1(CompositeNumber ext1) {
-		this.ext1 = ext1;
+	public void setCnX(CompositeNumber cnX) {
+		this.cnX = cnX;
 	}
 
-	public CompositeNumber getExt2() {
-		return ext2;
+	public CompositeNumber getCnY() {
+		return cnY;
 	}
 
-	public void setExt2(CompositeNumber ext2) {
-		this.ext2 = ext2;
+	public void setCnY(CompositeNumber cnY) {
+		this.cnY = cnY;
 	}
 	
 }

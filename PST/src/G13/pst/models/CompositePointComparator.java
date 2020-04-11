@@ -4,28 +4,28 @@ import java.util.Comparator;
 
 public class CompositePointComparator implements Comparator<CompositePoint>
 {
-	Comparator comparator;
-	public CompositePointComparator(boolean onExt1)
+	Comparator<CompositePoint> comparator;
+	public CompositePointComparator(boolean onCnX)
 	{
-		comparator = onExt1? new ComparatorOnExt1() : new ComparatorOnExt2();
+		comparator = onCnX? new ComparatorOnCnX() : new ComparatorOnCnY();
 	}
 	
-	private class ComparatorOnExt1 implements Comparator<CompositePoint>
+	private class ComparatorOnCnX implements Comparator<CompositePoint>
 	{
 
 		@Override
 		public int compare(CompositePoint o1, CompositePoint o2) {
-			return o1.getExt1().compareTo(o2.getExt1());
+			return o1.getCnX().compareTo(o2.getCnX());
 		}
 		
 	}
 	
-	private class ComparatorOnExt2 implements Comparator<CompositePoint>
+	private class ComparatorOnCnY implements Comparator<CompositePoint>
 	{
 
 		@Override
 		public int compare(CompositePoint o1, CompositePoint o2) {
-			return o1.getExt2().compareTo(o2.getExt2());
+			return o1.getCnY().compareTo(o2.getCnY());
 		}
 		
 	}
