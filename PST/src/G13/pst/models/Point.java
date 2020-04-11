@@ -40,9 +40,4 @@ public class Point
 	public void setSegment(Segment segment) {
 		this.segment = segment;
 	}
-	
-	public CompositePoint toComposite()
-	{
-		return new CompositePoint(this);
-	}
 }
