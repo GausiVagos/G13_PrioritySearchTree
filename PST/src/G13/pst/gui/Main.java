@@ -1,5 +1,8 @@
 package G13.pst.gui;
 
+import java.util.ArrayList;
+import java.util.Collection;
+
 import G13.pst.models.Segment;
 import G13.pst.utils.File;
 import G13.pst.utils.SegmentParser;
@@ -11,9 +14,6 @@ import javafx.scene.Scene;
 import javafx.scene.shape.Line;
 import javafx.stage.Stage;
 
-import java.util.ArrayList;
-import java.util.Collection;
-
 public class Main extends Application {
 
     private Stage primaryStage = null;
@@ -24,7 +24,7 @@ public class Main extends Application {
         Parent root = FXMLLoader.load(getClass().getResource("sample.fxml"));
         this.primaryStage = primaryStage;
         this.primaryStage.setTitle("Windowing preview");
-        this.createSceneFromFile("D:\\repo\\G13_PrioritySearchTree\\PST\\samples\\1000.txt");
+        this.createSceneFromFile(".\\samples\\1000.txt");
         this.primaryStage.show();
     }
 

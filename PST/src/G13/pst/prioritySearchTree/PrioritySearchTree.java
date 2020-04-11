@@ -1,6 +1,5 @@
 package G13.pst.prioritySearchTree;
 
-import java.util.Arrays;
 import java.util.List;
 
 import G13.pst.models.Point;
@@ -32,7 +31,7 @@ public class PrioritySearchTree
 		return null;
 	}
 	
-	private float median_in_Y(Point[] data)
+	private double median_in_Y(Point[] data)
 	{
 		//TODO : trier en fonction de y (ou avec les nombres composites?)
 		//Arrays.sort(data);
