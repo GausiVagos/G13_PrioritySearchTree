@@ -1,8 +1,6 @@
 package G13.pst.models;
 
-import java.util.Comparator;
-
-public class CompositeNumber implements Comparator
+public class CompositeNumber implements Comparable
 {
 	private int nb1;
 	private int nb2;
@@ -53,7 +51,7 @@ public class CompositeNumber implements Comparator
 	{
 		return nb1>other.getNb1() || (nb1==other.getNb1() && nb2>other.getNb2());
 	}
-	*/
+	
 	
 	@Override
 	public int compare(Object o1, Object o2) {
@@ -67,5 +65,16 @@ public class CompositeNumber implements Comparator
 		else if(c1.lesserThan(c2))
 			return -1;
 		else return 1;
+	}
+	*/ 
+	
+	@Override
+	public int compareTo(Object o) 
+	{
+		CompositeNumber other = (CompositeNumber)o;
+		if(other == null)
+			return -2;
+	
+		return this.equals(other)? 0 : this.lesserThan(other)? -1 : 1;
 	}
 }
