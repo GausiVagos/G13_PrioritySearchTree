@@ -14,6 +14,7 @@ public class PrioritySearchTree
 	private PrioritySearchTree rightC;
 	
 	private static boolean hasBeenSorted = false;
+	static List<Point> result;
 	
 	public PrioritySearchTree(List<Point> data)
 	{
@@ -38,6 +39,25 @@ public class PrioritySearchTree
 		
 		leftC = data.size()!=0 ? new PrioritySearchTree(data) : null;
 		rightC = data2.size()!=0 ? new PrioritySearchTree(data2) : null;
+	}
+	
+	public List<Point> launchSearch(double minY, double maxY, double maxX)
+	{
+		result = new ArrayList<Point>();
+		query(minY,maxY,maxX);
+		return result;
+	}
+	
+	public void query(double minY, double maxY, double maxX)
+	{
+		if(value.getX()>maxX)
+			return;
+		else if(minY<=value.getY() && value.getY()<=maxY)
+			result.add(value);
+		if(minY < median && leftC!=null)
+			leftC.query(minY,maxY,maxX);
+		if(median<maxY && rightC!=null)
+			rightC.query(minY,maxY,maxX);
 	}
 
 	public Point getValue() {
