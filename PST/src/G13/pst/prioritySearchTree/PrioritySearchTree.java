@@ -9,13 +9,14 @@ import G13.pst.models.PointComparator;
 
 public class PrioritySearchTree 
 {
-	private Point value;
-	private double median;
 	private PrioritySearchTree leftC;
 	private PrioritySearchTree rightC;
 	
+	private Point value;
+	private double median;
 	private static boolean hasBeenSorted = false;
-	static List<Point> result;
+	private boolean horizontal;
+	private boolean maximum_limited;
 	
 	public PrioritySearchTree(List<Point> data, boolean horizontal, boolean maximum_limited)
 	{
@@ -25,6 +26,8 @@ public class PrioritySearchTree
 			hasBeenSorted = true;
 		}
 		
+		this.horizontal = horizontal;
+		this.maximum_limited = maximum_limited;
 		Stream<Point> stream = data.stream();
 		value = maximum_limited ? stream.min(new PointComparator(horizontal)).get() : stream.max(new PointComparator(horizontal)).get();
 		data.remove(value);
@@ -50,27 +53,26 @@ public class PrioritySearchTree
 		rightC = data2.size()!=0 ? new PrioritySearchTree(data2,horizontal,maximum_limited) : null;
 	}
 	
-	//TODO : orienter les requêtes
-	/*
-	public List<Point> launchSearch(double minY, double maxY, double maxX)
+	public List<Point> query(double minKey, double maxKey, double limit)
 	{
-		result = new ArrayList<Point>();
-		query(minY,maxY,maxX);
+		
+		double priority = horizontal? value.getX() : value.getY();
+		double key = horizontal? value.getY() : value.getX();
+		
+		List<Point> result = new ArrayList<Point>();
+		if((maximum_limited && priority>limit) || (!maximum_limited && priority<limit)) // if the priority has passed its limit (over the max or below the min)
+			return result; // end of the branch
+		
+		if(minKey<=key && key<=maxKey) // the current node lies in the query window
+			result.add(value);
+		if(minKey < median && leftC!=null)
+			result.addAll(leftC.query(minKey,maxKey,limit)); // check the left subtree
+		if(median<maxKey && rightC!=null)
+			result.addAll(rightC.query(minKey,maxKey,limit)); // check the right subtree
+		
 		return result;
 	}
 	
-	public void query(double minY, double maxY, double maxX)
-	{
-		if(value.getX()>maxX)
-			return;
-		else if(minY<=value.getY() && value.getY()<=maxY)
-			result.add(value);
-		if(minY < median && leftC!=null)
-			leftC.query(minY,maxY,maxX);
-		if(median<maxY && rightC!=null)
-			rightC.query(minY,maxY,maxX);
-	}
-	*/
 	public Point getValue() {
 		return value;
 	}
