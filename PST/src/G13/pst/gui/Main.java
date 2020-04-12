@@ -3,6 +3,7 @@ package G13.pst.gui;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.function.UnaryOperator;
 import G13.pst.models.Point;
 import G13.pst.models.Segment;
 import G13.pst.models.Window;
@@ -13,10 +14,7 @@ import javafx.application.Platform;
 import javafx.geometry.Pos;
 import javafx.scene.Group;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.ScrollPane;
-import javafx.scene.control.Spinner;
+import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Line;
@@ -229,31 +227,58 @@ public class Main extends Application {
         r.addColumn(0, btn);
         r.addColumn(0,new Label("Total segments: " + this.segments.size()));
         r.addColumn(0,new Label("Window x0:"));
+        UnaryOperator<TextFormatter.Change> filter = change -> {
+            String text = change.getText();
+            if (text.matches("-?[0-9]*\\.?[0-9]*")) {
+                return change;
+            }
+            return null;
+        };
         this.spinnerQueryXS = new Spinner(this.window.getStart().getX(), this.window.getEnd().getX(),this.window.getStart().getX());
+        this.spinnerQueryXS.setEditable(true);
+        this.spinnerQueryXS.getEditor().setTextFormatter(new TextFormatter<>(filter));
         this.spinnerQueryXS.valueProperty().addListener((value) -> {
+            if((this.spinnerQueryYS.valueProperty().getValue() == null) || (this.spinnerQueryXE.valueProperty().getValue() == null)
+                    || (this.spinnerQueryYE.valueProperty().getValue() == null) || (this.spinnerQueryXS.valueProperty().getValue() == null))
+                return;
             this.drawWindowQuery(new Point((double) this.spinnerQueryXS.valueProperty().getValue(), (double) this.spinnerQueryYS.valueProperty().getValue()),
-                    new Point((double) this.spinnerQueryXE.valueProperty().getValue(),(double) this.spinnerQueryYE.valueProperty().getValue()));
+                        new Point((double) this.spinnerQueryXE.valueProperty().getValue(),(double) this.spinnerQueryYE.valueProperty().getValue()));
         });
         r.addColumn(0, this.spinnerQueryXS);
         r.addColumn(0,new Label("Window y0:"));
         this.spinnerQueryYS = new Spinner(this.window.getStart().getY(), this.window.getEnd().getY(),this.window.getStart().getY());
+        this.spinnerQueryYS.setEditable(true);
+        this.spinnerQueryYS.getEditor().setTextFormatter(new TextFormatter<>(filter));
         this.spinnerQueryYS.valueProperty().addListener((value) -> {
+            if((this.spinnerQueryYS.valueProperty().getValue() == null) || (this.spinnerQueryXE.valueProperty().getValue() == null)
+            || (this.spinnerQueryYE.valueProperty().getValue() == null) || (this.spinnerQueryXS.valueProperty().getValue() == null))
+                return;
             this.drawWindowQuery(new Point((double) this.spinnerQueryXS.valueProperty().getValue(), (double) this.spinnerQueryYS.valueProperty().getValue()),
-                    new Point((double) this.spinnerQueryXE.valueProperty().getValue(),(double) this.spinnerQueryYE.valueProperty().getValue()));
+                        new Point((double) this.spinnerQueryXE.valueProperty().getValue(),(double) this.spinnerQueryYE.valueProperty().getValue()));
         });
         r.addColumn(0, this.spinnerQueryYS);
         r.addColumn(0,new Label("Window x'0:"));
         this.spinnerQueryXE = new Spinner(this.window.getStart().getX(), this.window.getEnd().getX(), this.window.getEnd().getX());
+        this.spinnerQueryXE.setEditable(true);
+        this.spinnerQueryXE.getEditor().setTextFormatter(new TextFormatter<>(filter));
         this.spinnerQueryXE.valueProperty().addListener((value) -> {
+            if((this.spinnerQueryYS.valueProperty().getValue() == null) || (this.spinnerQueryXE.valueProperty().getValue() == null)
+                    || (this.spinnerQueryYE.valueProperty().getValue() == null) || (this.spinnerQueryXS.valueProperty().getValue() == null))
+                return;
             this.drawWindowQuery(new Point((double) this.spinnerQueryXS.valueProperty().getValue(), (double) this.spinnerQueryYS.valueProperty().getValue()),
-                    new Point((double) this.spinnerQueryXE.valueProperty().getValue(),(double) this.spinnerQueryYE.valueProperty().getValue()));
+                        new Point((double) this.spinnerQueryXE.valueProperty().getValue(),(double) this.spinnerQueryYE.valueProperty().getValue()));
         });
         r.addColumn(0, this.spinnerQueryXE);
         r.addColumn(0,new Label("Window y'0:"));
         this.spinnerQueryYE = new Spinner(this.window.getStart().getY(), this.window.getEnd().getY(), this.window.getEnd().getY());
+        this.spinnerQueryYE.setEditable(true);
+        this.spinnerQueryYE.getEditor().setTextFormatter(new TextFormatter<>(filter));
         this.spinnerQueryYE.valueProperty().addListener((value) -> {
+            if((this.spinnerQueryYS.valueProperty().getValue() == null) || (this.spinnerQueryXE.valueProperty().getValue() == null)
+                    || (this.spinnerQueryYE.valueProperty().getValue() == null) || (this.spinnerQueryXS.valueProperty().getValue() == null))
+                return;
             this.drawWindowQuery(new Point((double) this.spinnerQueryXS.valueProperty().getValue(), (double) this.spinnerQueryYS.valueProperty().getValue()),
-                    new Point((double) this.spinnerQueryXE.valueProperty().getValue(),(double) this.spinnerQueryYE.valueProperty().getValue()));
+                        new Point((double) this.spinnerQueryXE.valueProperty().getValue(),(double) this.spinnerQueryYE.valueProperty().getValue()));
         });
         r.addColumn(0, this.spinnerQueryYE);
         r.setAlignment(Pos.CENTER);
