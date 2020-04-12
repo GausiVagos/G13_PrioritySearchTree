@@ -281,9 +281,17 @@ public class Main extends Application {
                         new Point((double) this.spinnerQueryXE.valueProperty().getValue(),(double) this.spinnerQueryYE.valueProperty().getValue()));
         });
         r.addColumn(0, this.spinnerQueryYE);
+        Button btn3 = new Button("Perform query");
+        btn3.setPrefWidth(150);
+        btn3.setOnAction((value) -> {
+            if(this.queryRectangle != null) {
+                this.performQuery(new Window(new Point(this.queryRectangle.getX(), this.queryRectangle.getY()), new Point(this.queryRectangle.getX() + this.queryRectangle.getWidth(),this.queryRectangle.getY() + this.queryRectangle.getHeight())));
+            }
+        });
+        r.addColumn(0, btn3);
         r.setAlignment(Pos.CENTER);
         r.setVgap(5);
-        this.controlStage.setScene(new Scene(r, 300, 300));
+        this.controlStage.setScene(new Scene(r, 300, 350));
     }
 
     private void drawWindowQuery(Point p1, Point p2) {
@@ -303,6 +311,11 @@ public class Main extends Application {
         }
         this.queryRectangle.setFill(null);
         this.queryRectangle.setStroke(Color.RED);
+    }
+
+    private void performQuery(Window w) {
+        // TODO : search in tree
+        System.out.println(w);
     }
 
     public static void main(String[] args) {
