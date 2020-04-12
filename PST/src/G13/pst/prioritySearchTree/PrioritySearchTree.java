@@ -14,17 +14,14 @@ public class PrioritySearchTree
 	
 	private Point value;
 	private double median;
-	private static boolean hasBeenSorted = false;
 	private boolean horizontal;
 	private boolean maximum_limited;
+	List<Point> result;
 	
-	public PrioritySearchTree(List<Point> data, boolean horizontal, boolean maximum_limited)
+	public PrioritySearchTree(List<Point> data, boolean horizontal, boolean maximum_limited, boolean has_to_be_sorted)
 	{
-		if(!hasBeenSorted)
-		{
+		if(has_to_be_sorted)// only the root of the tree has to sort the point on their key
 			data.sort(new PointComparator(!horizontal));// a PointComparator initialized with 'false' will base its comparisons on Y
-			hasBeenSorted = true;
-		}
 		
 		this.horizontal = horizontal;
 		this.maximum_limited = maximum_limited;
@@ -49,28 +46,32 @@ public class PrioritySearchTree
 		List<Point> data2 = new ArrayList<Point>(sub);
 		sub.clear();
 		
-		leftC = data.size()!=0 ? new PrioritySearchTree(data,horizontal,maximum_limited) : null;
-		rightC = data2.size()!=0 ? new PrioritySearchTree(data2,horizontal,maximum_limited) : null;
+		leftC = data.size()!=0 ? new PrioritySearchTree(data,horizontal,maximum_limited, false) : null; // the subtrees won't have to sort the points, it has already been done
+		rightC = data2.size()!=0 ? new PrioritySearchTree(data2,horizontal,maximum_limited, false) : null;
 	}
 	
-	public List<Point> query(double minKey, double maxKey, double limit)
+	public List<Point> launchQuery(double minKey, double maxKey, double limit)
+	{
+		result = new ArrayList<Point>();
+		query(minKey,maxKey,limit,result); // when reporting a point, each subtree will add it to the same result list
+		return result;
+	}
+	
+	public void query(double minKey, double maxKey, double limit, List<Point> result)
 	{
 		
 		double priority = horizontal? value.getX() : value.getY();
 		double key = horizontal? value.getY() : value.getX();
-		
-		List<Point> result = new ArrayList<Point>();
+	
 		if((maximum_limited && priority>limit) || (!maximum_limited && priority<limit)) // if the priority has passed its limit (over the max or below the min)
-			return result; // end of the branch
+			return; // end of the branch
 		
 		if(minKey<=key && key<=maxKey) // the current node lies in the query window
 			result.add(value);
 		if(minKey < median && leftC!=null)
-			result.addAll(leftC.query(minKey,maxKey,limit)); // check the left subtree
+			leftC.query(minKey,maxKey,limit,result); // check the left subtree
 		if(median<maxKey && rightC!=null)
-			result.addAll(rightC.query(minKey,maxKey,limit)); // check the right subtree
-		
-		return result;
+			rightC.query(minKey,maxKey,limit,result); // check the right subtree
 	}
 	
 	public Point getValue() {
